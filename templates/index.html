@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}LinkShelf{% endblock %}
+
+{% block content %}
+  <section class="intro">
+    <h1>Saved Links</h1>
+    <p>A small shelf of useful bookmarks and notes.</p>
+  </section>
+
+  <section class="link-list" aria-label="Saved links">
+    {% for link in links %}
+      <article class="link-card">
+        <h2><a href="{{ link.url }}" target="_blank" rel="noopener">{{ link.title }}</a></h2>
+        <p class="url">{{ link.url }}</p>
+        {% if link.note %}
+          <p>{{ link.note }}</p>
+        {% endif %}
+      </article>
+    {% else %}
+      <p class="empty">No links have been saved yet.</p>
+    {% endfor %}
+  </section>
+{% endblock %}
