@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: linkshelf
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: linkshelf-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+
+databases:
+  - name: linkshelf-db
+    databaseName: linkshelf
+    user: linkshelf

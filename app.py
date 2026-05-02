@@ -1,14 +1,38 @@
 import os
-import sqlite3
 from urllib.parse import urlparse
 
-from flask import Flask, flash, g, redirect, render_template, request, url_for
+from flask import Flask, flash, redirect, render_template, request, url_for
+from sqlalchemy import Column, DateTime, Integer, MetaData, String, Table, create_engine, func, select
 
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev")
-app.config["DATABASE"] = os.environ.get(
-    "LINKSHELF_DATABASE", os.path.join(app.root_path, "linkshelf.db")
+
+
+def get_database_url():
+    database_url = os.environ.get("DATABASE_URL")
+    if database_url:
+        # Render may provide postgres://, but SQLAlchemy expects postgresql://.
+        if database_url.startswith("postgres://"):
+            database_url = database_url.replace("postgres://", "postgresql://", 1)
+        return database_url
+
+    local_path = os.environ.get(
+        "LINKSHELF_DATABASE", os.path.join(app.root_path, "linkshelf.db")
+    )
+    return f"sqlite:///{local_path}"
+
+
+engine = create_engine(get_database_url(), future=True)
+metadata = MetaData()
+links_table = Table(
+    "links",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("title", String(200), nullable=False),
+    Column("url", String(500), nullable=False),
+    Column("note", String(1000), default=""),
+    Column("created_at", DateTime, server_default=func.now()),
 )
 
 
@@ -31,52 +55,30 @@ PLACEHOLDER_LINKS = [
 ]
 
 
-def get_db():
-    if "db" not in g:
-        g.db = sqlite3.connect(app.config["DATABASE"])
-        g.db.row_factory = sqlite3.Row
-    return g.db
-
-
-@app.teardown_appcontext
-def close_db(error=None):
-    db = g.pop("db", None)
-    if db is not None:
-        db.close()
-
-
 def init_db():
-    db = sqlite3.connect(app.config["DATABASE"])
-    try:
-        db.execute(
-            """
-            CREATE TABLE IF NOT EXISTS links (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                title TEXT NOT NULL,
-                url TEXT NOT NULL,
-                note TEXT DEFAULT '',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-            """
-        )
-        count = db.execute("SELECT COUNT(*) FROM links").fetchone()[0]
+    metadata.create_all(engine)
+
+    with engine.begin() as connection:
+        count = connection.execute(
+            select(func.count()).select_from(links_table)
+        ).scalar_one()
         if count == 0:
-            db.executemany(
-                "INSERT INTO links (title, url, note) VALUES (?, ?, ?)",
-                [
-                    (link["title"], link["url"], link["note"])
-                    for link in PLACEHOLDER_LINKS
-                ],
+            connection.execute(
+                links_table.insert(),
+                PLACEHOLDER_LINKS,
             )
-        db.commit()
-    finally:
-        db.close()
 
 
 def get_links():
-    return get_db().execute(
-        "SELECT id, title, url, note FROM links ORDER BY created_at DESC, id DESC"
-    ).fetchall()
+    statement = select(
+        links_table.c.id,
+        links_table.c.title,
+        links_table.c.url,
+        links_table.c.note,
+    ).order_by(links_table.c.created_at.desc(), links_table.c.id.desc())
+
+    with engine.connect() as connection:
+        return connection.execute(statement).mappings().all()
 
 
 def is_valid_url(url):
@@ -101,11 +103,10 @@ def admin():
         elif not is_valid_url(url):
             flash("Please enter a valid http or https URL.")
         else:
-            get_db().execute(
-                "INSERT INTO links (title, url, note) VALUES (?, ?, ?)",
-                (title, url, note),
-            )
-            get_db().commit()
+            with engine.begin() as connection:
+                connection.execute(
+                    links_table.insert().values(title=title, url=url, note=note)
+                )
             flash("Link added.")
             return redirect(url_for("admin"))
 
@@ -114,8 +115,8 @@ def admin():
 
 @app.post("/admin/delete/<int:link_id>")
 def delete_link(link_id):
-    get_db().execute("DELETE FROM links WHERE id = ?", (link_id,))
-    get_db().commit()
+    with engine.begin() as connection:
+        connection.execute(links_table.delete().where(links_table.c.id == link_id))
     flash("Link deleted.")
     return redirect(url_for("admin"))
 
