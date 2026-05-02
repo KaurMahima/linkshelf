@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - LinkShelf{% endblock %}
+
+{% block content %}
+  <section class="intro">
+    <h1>Admin</h1>
+    <p>Add or remove links from the shelf.</p>
+  </section>
+
+  <section class="admin-layout">
+    <form class="link-form" method="post" action="{{ url_for('admin') }}">
+      <label for="title">Title</label>
+      <input id="title" name="title" type="text" required>
+
+      <label for="url">URL</label>
+      <input id="url" name="url" type="url" placeholder="https://example.com" required>
+
+      <label for="note">Note</label>
+      <textarea id="note" name="note" rows="4"></textarea>
+
+      <button type="submit">Add Link</button>
+    </form>
+
+    <section class="link-list admin-list" aria-label="Manage links">
+      {% for link in links %}
+        <article class="link-card manage-card">
+          <div>
+            <h2><a href="{{ link.url }}" target="_blank" rel="noopener">{{ link.title }}</a></h2>
+            <p class="url">{{ link.url }}</p>
+            {% if link.note %}
+              <p>{{ link.note }}</p>
+            {% endif %}
+          </div>
+          <form method="post" action="{{ url_for('delete_link', link_id=link.id) }}">
+            <button class="delete-button" type="submit">Delete</button>
+          </form>
+        </article>
+      {% else %}
+        <p class="empty">No links have been saved yet.</p>
+      {% endfor %}
+    </section>
+  </section>
+{% endblock %}
