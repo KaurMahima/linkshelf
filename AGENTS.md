@@ -65,13 +65,16 @@ LinkShelf is a simple bookmark manager where:
 
 ---
 
-## Deployment Target
+## Deployment (Render)
 
-* Platform: Render
-* The app must run with:
-  gunicorn app:app
-* Ensure requirements.txt includes all dependencies
-
+* The application must be deployable on Render as a Web Service
+* Use gunicorn as the production server
+* The app entry point must be: app:app
+* All dependencies must be listed in requirements.txt
+* Use environment variables for configuration (e.g., DATABASE_URL)
+* Do not hardcode any sensitive values
+* Ensure compatibility with PostgreSQL using DATABASE_URL
+* Keep deployment setup simple and minimal
 ---
 
 ## Agent Behavior
@@ -89,3 +92,12 @@ LinkShelf is a simple bookmark manager where:
 * Implement features incrementally
 * Validate functionality before moving to the next step
 * Prefer simple working solutions over complex ones
+
+---
+
+## Security Guidelines
+
+* Never hardcode secrets such as DATABASE_URL, passwords, or API keys
+* Always use environment variables for sensitive data
+* Do not store secrets in source code or commit them to the repository
+* Assume the repository may be public
