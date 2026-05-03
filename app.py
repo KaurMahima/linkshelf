@@ -2,7 +2,17 @@ import os
 from urllib.parse import urlparse
 
 from flask import Flask, flash, redirect, render_template, request, url_for
-from sqlalchemy import Column, DateTime, Integer, MetaData, String, Table, create_engine, func, select
+from sqlalchemy import (
+    Column,
+    DateTime,
+    Integer,
+    MetaData,
+    String,
+    Table,
+    create_engine,
+    func,
+    select,
+)
 
 
 app = Flask(__name__)
@@ -54,6 +64,14 @@ PLACEHOLDER_LINKS = [
     },
 ]
 
+CATEGORY_STYLES = {
+    "Docs": "tag-blue",
+    "Guide": "tag-green",
+    "Reference": "tag-purple",
+    "Tool": "tag-orange",
+    "Article": "tag-pink",
+}
+
 
 def init_db():
     metadata.create_all(engine)
@@ -78,7 +96,37 @@ def get_links():
     ).order_by(links_table.c.created_at.desc(), links_table.c.id.desc())
 
     with engine.connect() as connection:
-        return connection.execute(statement).mappings().all()
+        rows = connection.execute(statement).mappings().all()
+        return [decorate_link(row) for row in rows]
+
+
+def decorate_link(link):
+    domain = urlparse(link["url"]).netloc.replace("www.", "")
+    category = get_category(link)
+
+    return {
+        "id": link["id"],
+        "title": link["title"],
+        "url": link["url"],
+        "note": link["note"],
+        "domain": domain,
+        "category": category,
+        "tag_class": CATEGORY_STYLES.get(category, "tag-gray"),
+    }
+
+
+def get_category(link):
+    text = f"{link['title']} {link['url']} {link['note'] or ''}".lower()
+
+    if "docs" in text or "documentation" in text:
+        return "Docs"
+    if "guide" in text or "tutorial" in text:
+        return "Guide"
+    if "reference" in text:
+        return "Reference"
+    if "tool" in text or "app" in text:
+        return "Tool"
+    return "Article"
 
 
 def is_valid_url(url):

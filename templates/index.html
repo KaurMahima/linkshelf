@@ -3,22 +3,92 @@
 {% block title %}LinkShelf{% endblock %}
 
 {% block content %}
-  <section class="intro">
-    <h1>Saved Links</h1>
-    <p>A small shelf of useful bookmarks and notes.</p>
+  <section class="page-title hero-card">
+    <div class="hero-copy">
+      <p class="eyebrow">LinkShelf</p>
+      <h1>A polished shelf for useful resources.</h1>
+      <p>Browse saved links in a clean, searchable table built for quick scanning.</p>
+    </div>
+    <div class="hero-stats" aria-label="LinkShelf summary">
+      <div>
+        <strong>{{ links|length }}</strong>
+        <span>Saved links</span>
+      </div>
+      <div>
+        <strong>5</strong>
+        <span>Categories</span>
+      </div>
+    </div>
   </section>
 
-  <section class="link-list" aria-label="Saved links">
-    {% for link in links %}
-      <article class="link-card">
-        <h2><a href="{{ link.url }}" target="_blank" rel="noopener">{{ link.title }}</a></h2>
-        <p class="url">{{ link.url }}</p>
-        {% if link.note %}
-          <p>{{ link.note }}</p>
-        {% endif %}
-      </article>
-    {% else %}
-      <p class="empty">No links have been saved yet.</p>
-    {% endfor %}
+  <section class="resource-board" data-resource-scope>
+    <div class="board-header">
+      <div>
+        <p class="board-kicker">Public view</p>
+        <h2>LinkShelf resources</h2>
+      </div>
+      <span class="count-chip">{{ links|length }} links</span>
+    </div>
+
+    <div class="toolbar" aria-label="Link tools">
+      <label class="search-field">
+        <span>Search</span>
+        <input type="search" data-search placeholder="Search title, URL, tag, or note">
+      </label>
+
+      <div class="filter-group" aria-label="Filter by tag">
+        <button class="filter-button is-active" type="button" data-filter="All">All</button>
+        <button class="filter-button" type="button" data-filter="Docs">Docs</button>
+        <button class="filter-button" type="button" data-filter="Guide">Guide</button>
+        <button class="filter-button" type="button" data-filter="Reference">Reference</button>
+        <button class="filter-button" type="button" data-filter="Tool">Tool</button>
+        <button class="filter-button" type="button" data-filter="Article">Article</button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="resource-table" data-resource-table>
+        <thead>
+          <tr>
+            <th class="row-number">#</th>
+            <th>Link</th>
+            <th>Tag</th>
+            <th>Source</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for link in links %}
+            <tr
+              data-resource-row
+              data-category="{{ link.category }}"
+              data-search="{{ (link.title ~ ' ' ~ link.url ~ ' ' ~ link.domain ~ ' ' ~ link.note ~ ' ' ~ link.category)|lower }}"
+            >
+              <td class="row-number" data-label="#">{{ loop.index }}</td>
+              <td data-label="Link">
+                <div class="link-cell">
+                  <span class="link-icon">{{ link.title[:1]|upper }}</span>
+                  <div>
+                    <a class="title-link" href="{{ link.url }}" target="_blank" rel="noopener">{{ link.title }}</a>
+                    <span class="url-preview">{{ link.url }}</span>
+                  </div>
+                </div>
+              </td>
+              <td data-label="Tag">
+                <span class="tag {{ link.tag_class }}">{{ link.category }}</span>
+              </td>
+              <td data-label="Source">
+                <span class="domain">{{ link.domain }}</span>
+              </td>
+              <td data-label="Note">{{ link.note or "No note yet." }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <p class="empty" data-empty-state hidden>
+      {% if links %}No matching links found.{% else %}No links have been saved yet.{% endif %}
+    </p>
   </section>
 {% endblock %}
