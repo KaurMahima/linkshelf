@@ -3,42 +3,115 @@
 {% block title %}Admin - LinkShelf{% endblock %}
 
 {% block content %}
-  <section class="intro">
-    <h1>Admin</h1>
-    <p>Add or remove links from the shelf.</p>
+  <section class="page-title admin-hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Admin workspace</p>
+      <h1>Manage your LinkShelf resources.</h1>
+      <p>Add new links, review categories, and keep the table tidy.</p>
+    </div>
+    <div class="hero-stats" aria-label="Admin summary">
+      <div>
+        <strong>{{ links|length }}</strong>
+        <span>Total links</span>
+      </div>
+    </div>
   </section>
 
   <section class="admin-layout">
-    <form class="link-form" method="post" action="{{ url_for('admin') }}">
-      <label for="title">Title</label>
-      <input id="title" name="title" type="text" required>
+    <aside class="side-panel">
+      <div class="panel-heading">
+        <p class="board-kicker">New row</p>
+        <h2>Add Link</h2>
+      </div>
+      <form class="link-form" method="post" action="{{ url_for('admin') }}">
+        <label for="title">Title</label>
+        <input id="title" name="title" type="text" placeholder="Resource name" required>
 
-      <label for="url">URL</label>
-      <input id="url" name="url" type="url" placeholder="https://example.com" required>
+        <label for="url">URL</label>
+        <input id="url" name="url" type="url" placeholder="https://example.com" required>
 
-      <label for="note">Note</label>
-      <textarea id="note" name="note" rows="4"></textarea>
+        <label for="note">Note</label>
+        <textarea id="note" name="note" rows="4" placeholder="Optional context for this link"></textarea>
 
-      <button type="submit">Add Link</button>
-    </form>
+        <button type="submit">Add Link</button>
+      </form>
+    </aside>
 
-    <section class="link-list admin-list" aria-label="Manage links">
-      {% for link in links %}
-        <article class="link-card manage-card">
-          <div>
-            <h2><a href="{{ link.url }}" target="_blank" rel="noopener">{{ link.title }}</a></h2>
-            <p class="url">{{ link.url }}</p>
-            {% if link.note %}
-              <p>{{ link.note }}</p>
-            {% endif %}
-          </div>
-          <form method="post" action="{{ url_for('delete_link', link_id=link.id) }}">
-            <button class="delete-button" type="submit">Delete</button>
-          </form>
-        </article>
-      {% else %}
-        <p class="empty">No links have been saved yet.</p>
-      {% endfor %}
+    <section class="resource-board" aria-label="Manage links" data-resource-scope>
+      <div class="board-header">
+        <div>
+          <p class="board-kicker">Editable view</p>
+          <h2>Saved links</h2>
+        </div>
+        <span class="count-chip">{{ links|length }} links</span>
+      </div>
+
+      <div class="toolbar" aria-label="Admin tools">
+        <label class="search-field">
+          <span>Search</span>
+          <input type="search" data-search placeholder="Search title, URL, tag, or note">
+        </label>
+
+        <div class="filter-group" aria-label="Filter by tag">
+          <button class="filter-button is-active" type="button" data-filter="All">All</button>
+          <button class="filter-button" type="button" data-filter="Docs">Docs</button>
+          <button class="filter-button" type="button" data-filter="Guide">Guide</button>
+          <button class="filter-button" type="button" data-filter="Reference">Reference</button>
+          <button class="filter-button" type="button" data-filter="Tool">Tool</button>
+          <button class="filter-button" type="button" data-filter="Article">Article</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="resource-table admin-table" data-resource-table>
+          <thead>
+            <tr>
+              <th class="row-number">#</th>
+              <th>Link</th>
+              <th>Tag</th>
+              <th>Source</th>
+              <th>Note</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for link in links %}
+              <tr
+                data-resource-row
+                data-category="{{ link.category }}"
+                data-search="{{ (link.title ~ ' ' ~ link.url ~ ' ' ~ link.domain ~ ' ' ~ link.note ~ ' ' ~ link.category)|lower }}"
+              >
+                <td class="row-number" data-label="#">{{ loop.index }}</td>
+                <td data-label="Link">
+                  <div class="link-cell">
+                    <span class="link-icon">{{ link.title[:1]|upper }}</span>
+                    <div>
+                      <a class="title-link" href="{{ link.url }}" target="_blank" rel="noopener">{{ link.title }}</a>
+                      <span class="url-preview">{{ link.url }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td data-label="Tag">
+                  <span class="tag {{ link.tag_class }}">{{ link.category }}</span>
+                </td>
+                <td data-label="Source">
+                  <span class="domain">{{ link.domain }}</span>
+                </td>
+                <td data-label="Note">{{ link.note or "No note yet." }}</td>
+                <td data-label="Action">
+                  <form method="post" action="{{ url_for('delete_link', link_id=link.id) }}">
+                    <button class="delete-button" type="submit">Delete</button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <p class="empty" data-empty-state hidden>
+        {% if links %}No matching links found.{% else %}No links have been saved yet.{% endif %}
+      </p>
     </section>
   </section>
 {% endblock %}
