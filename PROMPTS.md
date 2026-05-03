@@ -26,3 +26,28 @@ Requirements:
 
 Keep everything simple and beginner-friendly.
 Explain what you change.
+
+Prompts for issue 3 - enhance ui design
+
+
+› Follow AGENTS.md and use the ui-interactions skill.
+
+Improve the LinkShelf homepage and admin page to
+feel like a clean Notion/Excel-style resource table
+
+promot 2 for issue3 (problem - teh webiste look quite bland)
+
+Follow AGENTS.md and use the ui-interactions skill.
+
+The current site looks too bland. Redesign the UI to look more polished, colorful, and portfolio-ready while keeping the app simple.
+
+Focus on:
+- stronger homepage header
+- card-like layout
+- better table styling
+- colorful category badges
+- improved admin form
+- better spacing and typography
+- responsive mobile design
+
+Use plain CSS only. Explain changes and how to test.
