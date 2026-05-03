@@ -55,6 +55,7 @@
             <th>Tag</th>
             <th>Source</th>
             <th>Note</th>
+            <th>AI Summary</th>
           </tr>
         </thead>
         <tbody>
@@ -62,7 +63,7 @@
             <tr
               data-resource-row
               data-category="{{ link.category }}"
-              data-search="{{ (link.title ~ ' ' ~ link.url ~ ' ' ~ link.domain ~ ' ' ~ link.note ~ ' ' ~ link.category)|lower }}"
+              data-search="{{ (link.title ~ ' ' ~ link.url ~ ' ' ~ link.domain ~ ' ' ~ link.note ~ ' ' ~ link.ai_summary ~ ' ' ~ link.category)|lower }}"
             >
               <td class="row-number" data-label="#">{{ loop.index }}</td>
               <td data-label="Link">
@@ -81,6 +82,9 @@
                 <span class="domain">{{ link.domain }}</span>
               </td>
               <td data-label="Note">{{ link.note or "No note yet." }}</td>
+              <td data-label="AI Summary">
+                <span class="ai-summary">{{ link.ai_summary or "No AI summary yet." }}</span>
+              </td>
             </tr>
           {% endfor %}
         </tbody>

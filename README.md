@@ -8,6 +8,7 @@ LinkShelf is a small Flask bookmark app for saving and sharing useful links with
 - Admin page at `/admin` for adding and deleting links
 - SQLite database for local development
 - PostgreSQL support for production with `DATABASE_URL`
+- Optional AI summaries for new links with `OPENAI_API_KEY`
 - Database tables and placeholder links created automatically on first run
 - Render-ready start command: `gunicorn app:app`
 
@@ -23,6 +24,16 @@ python app.py
 Then open `http://127.0.0.1:5000`.
 
 By default, local development uses `linkshelf.db` in the project folder. To use another database locally, set `DATABASE_URL` before starting the app.
+
+To generate AI summaries when adding links, set `OPENAI_API_KEY` before starting the app. You can also set `OPENAI_MODEL`; otherwise the app uses `gpt-4o-mini`. If the API key is missing or the API call fails, LinkShelf still saves the bookmark without an AI summary.
+
+For local development, you can put the key in a `.env` file in the project folder:
+
+```bash
+OPENAI_API_KEY=your-api-key
+```
+
+Restart the Flask app after editing `.env`.
 
 ## Deploy on Render
 
@@ -66,3 +77,4 @@ gunicorn app:app
 4. Create a Render PostgreSQL database.
 5. Add the database connection string as the web service environment variable `DATABASE_URL`.
 6. Add a `SECRET_KEY` environment variable with any long random value.
+7. Add `OPENAI_API_KEY` if you want new links to include AI summaries.
