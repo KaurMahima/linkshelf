@@ -1,10 +1,11 @@
 import json
 import os
+from hmac import compare_digest
 from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
 from urllib.parse import urlparse
+from urllib.request import Request, urlopen
 
-from flask import Flask, flash, redirect, render_template, request, url_for
+from flask import Flask, flash, redirect, render_template, request, session, url_for
 from sqlalchemy import (
     Column,
     DateTime,
@@ -176,6 +177,34 @@ def is_valid_url(url):
     return parsed.scheme in {"http", "https"} and bool(parsed.netloc)
 
 
+def get_admin_password():
+    return os.environ.get("ADMIN_PASSWORD", "")
+
+
+def is_admin_configured():
+    return bool(get_admin_password())
+
+
+def is_admin_logged_in():
+    return session.get("admin_logged_in") is True
+
+
+def require_admin():
+    if is_admin_logged_in():
+        return None
+
+    if not is_admin_configured():
+        flash("Admin login is disabled until ADMIN_PASSWORD is set.")
+    else:
+        flash("Please log in to access the admin page.")
+    return redirect(url_for("login"))
+
+
+@app.context_processor
+def inject_auth_state():
+    return {"admin_logged_in": is_admin_logged_in()}
+
+
 def generate_ai_summary(title, url, note):
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
@@ -262,8 +291,38 @@ def index():
     return render_template("index.html", links=get_links())
 
 
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if is_admin_logged_in():
+        return redirect(url_for("admin"))
+
+    admin_password = get_admin_password()
+    if request.method == "POST":
+        if not admin_password:
+            flash("Admin login is disabled until ADMIN_PASSWORD is set.")
+        elif compare_digest(request.form.get("password", ""), admin_password):
+            session["admin_logged_in"] = True
+            flash("Logged in.")
+            return redirect(url_for("admin"))
+        else:
+            flash("Incorrect password.")
+
+    return render_template("login.html", admin_configured=bool(admin_password))
+
+
+@app.post("/logout")
+def logout():
+    session.pop("admin_logged_in", None)
+    flash("Logged out.")
+    return redirect(url_for("index"))
+
+
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
+    auth_redirect = require_admin()
+    if auth_redirect is not None:
+        return auth_redirect
+
     if request.method == "POST":
         title = request.form.get("title", "").strip()
         url = request.form.get("url", "").strip()
@@ -295,6 +354,10 @@ def admin():
 
 @app.post("/admin/delete/<int:link_id>")
 def delete_link(link_id):
+    auth_redirect = require_admin()
+    if auth_redirect is not None:
+        return auth_redirect
+
     with engine.begin() as connection:
         connection.execute(links_table.delete().where(links_table.c.id == link_id))
     flash("Link deleted.")

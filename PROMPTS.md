@@ -69,3 +69,15 @@ Requirements:
 - Do not overengineer
 
 Explain changes and how to test.
+
+Prompt for issue 12 
+
+Follow AGENTS.md.
+
+Add simple admin authentication to LinkShelf.
+
+Requirements:
+- Protect /admin so only the owner can access it
+- Use a password from ADMIN_PASSWORD environment variable
+- Add login and logout with Flask session
+- If ADMIN_PASSWORD is missing, do not leave admin publicly accessible

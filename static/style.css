@@ -95,6 +95,7 @@ textarea {
 
 .nav-links {
   display: flex;
+  align-items: center;
   gap: 8px;
 }
 
@@ -107,6 +108,26 @@ textarea {
 }
 
 .nav-links a:hover {
+  background: #e0f2fe;
+  color: var(--text);
+}
+
+.logout-form {
+  margin: 0;
+}
+
+.logout-form button {
+  min-height: 0;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #ffffff;
+  color: var(--muted);
+  font-size: 0.92rem;
+  box-shadow: none;
+}
+
+.logout-form button:hover {
   background: #e0f2fe;
   color: var(--text);
 }
@@ -237,7 +258,8 @@ textarea {
 }
 
 .resource-board,
-.side-panel {
+.side-panel,
+.login-panel {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 20px;
@@ -246,6 +268,26 @@ textarea {
 
 .resource-board {
   overflow: hidden;
+}
+
+.login-panel {
+  max-width: 440px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.login-panel h1 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.locked-message {
+  padding: 18px 20px 20px;
+  color: var(--muted);
+}
+
+.locked-message p {
+  margin: 0;
 }
 
 .board-header {
@@ -648,6 +690,10 @@ button:hover {
   .nav {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
   }
 
   .page {
