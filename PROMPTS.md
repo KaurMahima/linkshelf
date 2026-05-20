@@ -69,3 +69,31 @@ Requirements:
 - Do not overengineer
 
 Explain changes and how to test.
+
+Prompt for issue 12 
+
+Follow AGENTS.md.
+
+Add simple admin authentication to LinkShelf.
+
+Requirements:
+- Protect /admin so only the owner can access it
+- Use a password from ADMIN_PASSWORD environment variable
+- Add login and logout with Flask session
+- If ADMIN_PASSWORD is missing, do not leave admin publicly accessible
+
+
+Follow AGENTS.md.
+
+Update the homepage hero section in templates/index.html.
+
+Requirements:
+- Remove the main opening headline from the homepage hero section
+- Keep the rest of the hero section clean and balanced
+- If needed, keep or slightly adjust the supporting text so the section still reads naturally
+- Do not change functionality
+- Do not redesign the page
+- Keep the layout simple and visually consistent after removing the headline
+
+Make only the minimal template changes needed.
+Explain what you changed.

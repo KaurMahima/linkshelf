@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Login - LinkShelf{% endblock %}
+
+{% block content %}
+  <section class="login-panel">
+    <div class="panel-heading">
+      <p class="board-kicker">Owner access</p>
+      <h1>Admin Login</h1>
+    </div>
+
+    {% if admin_configured %}
+      <form class="link-form" method="post" action="{{ url_for('login') }}">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required autofocus>
+
+        <button type="submit">Log In</button>
+      </form>
+    {% else %}
+      <div class="locked-message">
+        <p>Admin access is locked until ADMIN_PASSWORD is set.</p>
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

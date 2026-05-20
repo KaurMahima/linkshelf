@@ -5,7 +5,7 @@ LinkShelf is a small Flask bookmark app for saving and sharing useful links with
 ## Features
 
 - Public page at `/` that lists saved links
-- Admin page at `/admin` for adding and deleting links
+- Password-protected admin page at `/admin` for adding and deleting links
 - SQLite database for local development
 - PostgreSQL support for production with `DATABASE_URL`
 - Optional AI summaries for new links with `OPENAI_API_KEY`
@@ -27,9 +27,12 @@ By default, local development uses `linkshelf.db` in the project folder. To use 
 
 To generate AI summaries when adding links, set `OPENAI_API_KEY` before starting the app. You can also set `OPENAI_MODEL`; otherwise the app uses `gpt-4o-mini`. If the API key is missing or the API call fails, LinkShelf still saves the bookmark without an AI summary.
 
+Set `ADMIN_PASSWORD` before using the admin page. If `ADMIN_PASSWORD` is missing, admin access stays locked.
+
 For local development, you can put the key in a `.env` file in the project folder:
 
 ```bash
+ADMIN_PASSWORD=choose-a-password
 OPENAI_API_KEY=your-api-key
 ```
 
@@ -47,6 +50,7 @@ This repo includes `render.yaml`, so Render can create the web service and Postg
    - a PostgreSQL database named `linkshelf-db`
    - a `DATABASE_URL` environment variable for the app
    - a generated `SECRET_KEY`
+   - an `ADMIN_PASSWORD` environment variable for you to fill in
 5. Deploy the service.
 
 The production start command is:
@@ -77,4 +81,5 @@ gunicorn app:app
 4. Create a Render PostgreSQL database.
 5. Add the database connection string as the web service environment variable `DATABASE_URL`.
 6. Add a `SECRET_KEY` environment variable with any long random value.
-7. Add `OPENAI_API_KEY` if you want new links to include AI summaries.
+7. Add an `ADMIN_PASSWORD` environment variable for owner login.
+8. Add `OPENAI_API_KEY` if you want new links to include AI summaries.

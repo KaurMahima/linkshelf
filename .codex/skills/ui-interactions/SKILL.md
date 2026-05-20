@@ -57,3 +57,13 @@ Testing:
 - Verify search/filter still works
 - Verify add/delete still works
 - Verify mobile layout is usable
+
+Follow AGENTS.md and use the ui-interactions skill where relevant.
+
+Implement the next major LinkShelf features in a simple, beginner-friendly way:
+- edit bookmarks
+- prevent duplicate URLs
+- add stored categories
+- let admin create new categories
+- add favorite/pinned links
+- add CSV import/export
