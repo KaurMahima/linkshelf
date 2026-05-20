@@ -14,11 +14,15 @@
         <strong>{{ links|length }}</strong>
         <span>Total links</span>
       </div>
+      <div>
+        <strong>{{ categories|length }}</strong>
+        <span>Categories</span>
+      </div>
     </div>
   </section>
 
   <section class="admin-layout">
-    <aside class="side-panel">
+    <aside class="side-panel admin-tools">
       <div class="panel-heading">
         <p class="board-kicker">New row</p>
         <h2>Add Link</h2>
@@ -33,7 +37,40 @@
         <label for="note">Note</label>
         <textarea id="note" name="note" rows="4" placeholder="Optional context for this link"></textarea>
 
+        <label for="category_id">Category</label>
+        <select id="category_id" name="category_id">
+          {% for category in categories %}
+            <option value="{{ category.id }}">{{ category.name }}</option>
+          {% endfor %}
+        </select>
+
+        <label class="check-field">
+          <input name="is_favorite" type="checkbox">
+          <span>Pin this link</span>
+        </label>
+
         <button type="submit">Add Link</button>
+      </form>
+
+      <div class="panel-heading secondary-heading">
+        <p class="board-kicker">Categories</p>
+        <h2>Add Category</h2>
+      </div>
+      <form class="link-form compact-form" method="post" action="{{ url_for('add_category') }}">
+        <label for="category_name">Name</label>
+        <input id="category_name" name="name" type="text" placeholder="Research" required>
+        <button type="submit">Add Category</button>
+      </form>
+
+      <div class="panel-heading secondary-heading">
+        <p class="board-kicker">CSV</p>
+        <h2>Import / Export</h2>
+      </div>
+      <form class="link-form compact-form" method="post" action="{{ url_for('import_links') }}" enctype="multipart/form-data">
+        <label for="csv_file">Import CSV</label>
+        <input id="csv_file" name="csv_file" type="file" accept=".csv,text/csv" required>
+        <button type="submit">Import CSV</button>
+        <a class="export-button" href="{{ url_for('export_links') }}">Export CSV</a>
       </form>
     </aside>
 
@@ -54,11 +91,9 @@
 
         <div class="filter-group" aria-label="Filter by tag">
           <button class="filter-button is-active" type="button" data-filter="All">All</button>
-          <button class="filter-button" type="button" data-filter="Docs">Docs</button>
-          <button class="filter-button" type="button" data-filter="Guide">Guide</button>
-          <button class="filter-button" type="button" data-filter="Reference">Reference</button>
-          <button class="filter-button" type="button" data-filter="Tool">Tool</button>
-          <button class="filter-button" type="button" data-filter="Article">Article</button>
+          {% for category in categories %}
+            <button class="filter-button" type="button" data-filter="{{ category.name }}">{{ category.name }}</button>
+          {% endfor %}
         </div>
       </div>
 
@@ -88,6 +123,7 @@
                     <span class="link-icon">{{ link.title[:1]|upper }}</span>
                     <div>
                       <a class="title-link" href="{{ link.url }}" target="_blank" rel="noopener">{{ link.title }}</a>
+                      {% if link.is_favorite %}<span class="pin-label">Pinned</span>{% endif %}
                       <span class="url-preview">{{ link.url }}</span>
                     </div>
                   </div>
@@ -103,9 +139,41 @@
                   <span class="ai-summary">{{ link.ai_summary or "No AI summary yet." }}</span>
                 </td>
                 <td data-label="Action">
-                  <form method="post" action="{{ url_for('delete_link', link_id=link.id) }}">
-                    <button class="delete-button" type="submit">Delete</button>
-                  </form>
+                  <div class="row-actions">
+                    <details class="edit-panel">
+                      <summary>Edit</summary>
+                      <form method="post" action="{{ url_for('edit_link', link_id=link.id) }}">
+                        <label>
+                          Title
+                          <input name="title" type="text" value="{{ link.title }}" required>
+                        </label>
+                        <label>
+                          URL
+                          <input name="url" type="url" value="{{ link.url }}" required>
+                        </label>
+                        <label>
+                          Note
+                          <textarea name="note" rows="3">{{ link.note }}</textarea>
+                        </label>
+                        <label>
+                          Category
+                          <select name="category_id">
+                            {% for category in categories %}
+                              <option value="{{ category.id }}" {% if category.id == link.category_id %}selected{% endif %}>{{ category.name }}</option>
+                            {% endfor %}
+                          </select>
+                        </label>
+                        <label class="check-field">
+                          <input name="is_favorite" type="checkbox" {% if link.is_favorite %}checked{% endif %}>
+                          <span>Pin</span>
+                        </label>
+                        <button type="submit">Save</button>
+                      </form>
+                    </details>
+                    <form method="post" action="{{ url_for('delete_link', link_id=link.id) }}">
+                      <button class="delete-button" type="submit">Delete</button>
+                    </form>
+                  </div>
                 </td>
               </tr>
             {% endfor %}

@@ -42,6 +42,7 @@ a {
 
 button,
 input,
+select,
 textarea {
   font: inherit;
 }
@@ -357,6 +358,7 @@ textarea {
 
 .search-field input,
 .link-form input,
+.link-form select,
 .link-form textarea {
   width: 100%;
   border: 1px solid var(--border);
@@ -368,6 +370,7 @@ textarea {
 
 .search-field input:focus,
 .link-form input:focus,
+.link-form select:focus,
 .link-form textarea:focus {
   border-color: #7bbab2;
   outline: 3px solid #dff2ef;
@@ -501,7 +504,7 @@ button:hover {
 
 .admin-table th:nth-child(7),
 .admin-table td:nth-child(7) {
-  width: 104px;
+  width: 190px;
 }
 
 .link-cell {
@@ -548,6 +551,19 @@ button:hover {
   color: var(--faint);
   font-size: 0.82rem;
   overflow-wrap: anywhere;
+}
+
+.pin-label {
+  display: inline-flex;
+  width: fit-content;
+  margin-top: 5px;
+  padding: 3px 8px;
+  border: 1px solid #fde68a;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 0.74rem;
+  font-weight: 800;
 }
 
 .ai-summary {
@@ -632,9 +648,102 @@ button:hover {
   padding: 18px 20px 20px;
 }
 
+.compact-form {
+  padding-top: 14px;
+}
+
 .link-form textarea {
   min-height: 96px;
   resize: vertical;
+}
+
+.link-form .check-field,
+.edit-panel .check-field {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--text);
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-transform: none;
+}
+
+.link-form .check-field input,
+.edit-panel .check-field input {
+  width: auto;
+}
+
+.secondary-heading {
+  border-top: 1px solid var(--border-soft);
+}
+
+.export-button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 42px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--accent-dark);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.export-button:hover {
+  background: var(--accent-soft);
+}
+
+.row-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.edit-panel {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.edit-panel summary {
+  padding: 8px 10px;
+  color: var(--accent-dark);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.edit-panel form {
+  display: grid;
+  gap: 8px;
+  padding: 0 10px 10px;
+}
+
+.edit-panel label {
+  display: grid;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.edit-panel input,
+.edit-panel select,
+.edit-panel textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #f8fafc;
+  color: var(--text);
+  padding: 8px;
+  font-size: 0.86rem;
+  font-weight: 500;
+  text-transform: none;
+}
+
+.edit-panel button {
+  padding: 8px 10px;
 }
 
 .delete-button {
